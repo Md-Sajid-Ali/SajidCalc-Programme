@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SajidCalc Programme</title>
+  <link rel="icon" type="image/jpg" href="images/favicon.jpg">
+  <style>
+   :root {
+      --bg-color: black;
+      --text-color: white;
+      --accent-color: crimson;
+      --btn-bg: white;
+      --btn-text: black;
+    }
+
+    body.light {
+      --bg-color: white;
+      --text-color: black;
+      --btn-bg: black;
+      --btn-text: white;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 3rem;
+    }
+
+    .calculator {
+      background-color: var(--accent-color);
+      border-radius: 16px;
+      padding: 1rem;
+      width: 300px;
+    }
+
+    .display {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: right;
+      font-size: 1.5rem;
+      word-wrap: break-word;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .buttons button {
+      padding: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      transition: 0.3s;
+    }
+
+    .buttons button:hover {
+      opacity: 0.8;
+    }
+
+    .history, .calendar {
+      margin: 1rem;
+      background-color: var(--accent-color);
+      padding: 1rem;
+      border-radius: 16px;
+      width: 250px;
+    }
+
+    .history ol {
+      list-style: decimal;
+      padding-left: 1.2rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .calendar table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      color: white;
+    }
+
+    .calendar th, .calendar td {
+      padding: 0.1rem;
+      text-align: center;
+      border: 2px solid white;
+    }
+
+    .calendar .time-display {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .mode-toggle {
+      margin: 1rem;
+      text-align: center;
+    }
+
+    .mode-toggle button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+    }
+
+
+    footer{
+    background: crimson;
+    padding: 15px 23px;
+    color: #ffffff;
+    text-align: center;
+}
+footer span a{
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    text-shadow: 3px black;
+}
+footer span a:hover{
+    text-decoration: underline;
+}
+
+
+    @media (max-width: 800px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>SajidCalc Programme</h1>
+  </header>
+  <div class="mode-toggle">
+    <button onclick="toggleMode()">Toggle Light/Dark Mode</button>
+  </div>
+  <div class="container">
+    <div class="history">
+      <h3>History</h3>
+      <ol id="history-list"></ol>
+    </div>
+    <div class="calculator">
+      <div class="display" id="display">0</div>
+      <div class="buttons">
+        <button onclick="clearDisplay()">C</button>
+        <button onclick="append('/')">/</button>
+        <button onclick="append('*')">*</button>
+        <button onclick="delChar()">DEL</button>
+        <button onclick="append('7')">7</button>
+        <button onclick="append('8')">8</button>
+        <button onclick="append('9')">9</button>
+        <button onclick="append('-')">-</button>
+        <button onclick="append('4')">4</button>
+        <button onclick="append('5')">5</button>
+        <button onclick="append('6')">6</button>
+        <button onclick="append('+')">+</button>
+        <button onclick="append('1')">1</button>
+        <button onclick="append('2')">2</button>
+        <button onclick="append('3')">3</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="append('0')">0</button>
+        <button onclick="append('.')">.</button>
+      </div>
+    </div>
+    <div class="calendar">
+      <h3>Calendar</h3>
+      <br>
+      <div id="calendar-table"></div>
+      <div class="time-display" id="current-time"></div>
+    </div>
+  </div>
+  <footer>
+    <span>Created By <a href="https://md-sajid-ali.github.io/portfolio" target="_blank"><u>@Spidey Designing</u></a> | <span class="far fa-copyright"></span> 2025 All rights reserved.</span>
+  </footer>
+
+  <script>
+    let display = document.getElementById("display");
+    let historyList = document.getElementById("history-list");
+    let expression = "";
+
+    function append(char) {
+      if (display.textContent === "0") display.textContent = "";
+      display.textContent += char;
+      expression += char;
+    }
+
+    function clearDisplay() {
+      display.textContent = "0";
+      expression = "";
+    }
+
+    function delChar() {
+      display.textContent = display.textContent.slice(0, -1);
+      expression = expression.slice(0, -1);
+      if (!display.textContent) display.textContent = "0";
+    }
+
+    function calculate() {
+      try {
+        let result = eval(expression);
+        let li = document.createElement("li");
+        li.textContent = `${expression} = ${result}`;
+        historyList.appendChild(li);
+        display.textContent = result;
+        expression = result.toString();
+      } catch (e) {
+        display.textContent = "Error";
+        expression = "";
+      }
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light");
+    }
+
+    function generateCalendar() {
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      let table = `<table><tr>${weekdays.map(d => `<th>${d}</th>`).join('')}</tr><tr>`;
+
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        table += `<td></td>`;
+      }
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const currentDate = new Date(currentYear, currentMonth, d);
+        table += `<td${d === today.getDate() ? ' style="background-color:white;color:black;"' : ''}>${d}</td>`;
+        if (currentDate.getDay() === 6 && d !== lastDay.getDate()) {
+          table += `</tr><tr>`;
+        }
+      }
+
+      table += `</tr></table>`;
+      document.getElementById("calendar-table").innerHTML = table;
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("current-time").textContent = now.toLocaleTimeString();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.key >= '0' && e.key <= '9') || ['+', '-', '*', '/', '.'].includes(e.key)) {
+        append(e.key);
+      } else if (e.key === 'Enter') {
+        calculate();
+      } else if (e.key === 'Backspace') {
+        delChar();
+      } else if (e.key === 'Escape') {
+        clearDisplay();
+      }
+    });
+
+    window.onload = () => {
+      generateCalendar();
+      updateTime();
+      setInterval(updateTime, 1000);
+    };
+  </script>
+</body>
+
+</html>
